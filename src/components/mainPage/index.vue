@@ -28,7 +28,6 @@
                   <el-dropdown-item command="old">返回旧版</el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
-              <!-- <el-button type='primary' @click="goToRelease">发 布 管 理</el-button> -->
             </div>
           </div>
         </el-card>
@@ -152,8 +151,6 @@ import {
 } from 'element-ui';
 import qs from 'qs';
 
-
-
 export default {
   data() {
     let checkPrefix = (rule, value, callback) => {
@@ -202,24 +199,24 @@ export default {
   },
   watch: {},
   methods: {
+    // 跳转到邮箱登录页
     goToMail() {
       this.$router.push('/login')
     },
-    goToBbs() {
-      this.$router.push('')
-    },
-    goToRelease() {
-      this.$router.push('/release')
-    },
+    // 跳转到资源浏览页
     goToBrowse() {
       window.location.href = process.env.API_HOST + "/mclient/more_n.php"
     },
+    // 根据选择的按钮，显示对应的Dialog
     changeDialogVisiable(command) {
       if (command == 'release') {
+        // 显示资源发布Dialog
         this.releaseDialogVisiable = true
       } else if (command == 'register') {
+        // 显示资源发布用户注册Dialog
         this.registerDialogVisiable = true
       } else if (command == 'old') {
+        // 跳转到旧版本
         window.location.href = process.env.API_HOST + "/mclient/register.html"
       }
     },
@@ -230,17 +227,18 @@ export default {
         })
         .catch(_ => {});
     },
-    closeDialog(temp) {
-      if (temp == 'release') {
+    // 根据返回的Dialog名称关闭对应的Dialog，并做对应回收工作
+    closeDialog(dialogName) {
+      if (dialogName == 'release') {
         this.releaseDialogVisiable = false
         this.dialogVisible = ''
-      } else if (temp == 'register') {
+      } else if (dialogName == 'register') {
         this.registerDialogVisiable = false
         this.dialogVisible = ''
-      } else if (temp == 'release_inner') {
+      } else if (dialogName == 'release_inner') {
         this.releaseDialogVisiable_innerVisible = false
         this.dialogVisible = ''
-      } else if (temp == 'register_inner') {
+      } else if (dialogName == 'register_inner') {
         this.registerDialogVisiable = false
         this.registerDialogVisiable_innerVisible = false
         this.dialogVisible = ''
@@ -252,9 +250,9 @@ export default {
         message: '该功能正在开发中，敬请期待'
       })
     },
+    // 资源发布
     releaseResource() {
       let that = this
-      // 121.15.171.84
       this.$axios.post(process.env.API_HOST + '/mclient/create_url.php', qs.stringify({
         input1: this.releaseFrom.flag,
         input2: this.releaseFrom.mapAddr,
@@ -264,12 +262,8 @@ export default {
       })).then(function(response) {
         if (response.data[0] == '0') {
           that.releaseDialogVisiable_innerVisible = true
-          // Message.success({
-          //   title: '提示',
-          //   message: response.data
-          // })
-        }
-        else {
+          // Message.s
+        } else {
           that.closeDialog('release_inner')
           that.closeDialog('release')
           Message.info({
@@ -285,6 +279,7 @@ export default {
         })
       })
     },
+    // 资源发布用户注册
     registerUser(formName) {
       let that = this
       this.$refs[formName].validate((valid) => {

@@ -4,29 +4,21 @@ import Router from 'vue-router'
 import IndexPage from '@/components/mainPage'
 import MailPage from '@/components/mail'
 import LoginPage from '@/components/mail/login'
-import ReleasePage from '@/components/release'
-
 
 const router = new Router({
-  mode: 'history',
+  mode: 'history', // 设置为history才不会在地址中带#影响跳转
   routes: [{
-    /*首页*/
-    path: '/',
+    path: '/', // 首页
     component: IndexPage
   }, {
-    // 发布
-    path: '/release',
-    component: ReleasePage
-  }, {
-    // 发布
-    path: '/login',
+    path: '/login', // 邮箱登录页
     component: LoginPage
-  }, { /*首页*/
-    path: '/mail',
+  }, {
+    path: '/mail', // 邮箱页
     component: MailPage
   }]
 })
 
-Vue.use(Router);
+Vue.use(Router)
 
 export default router

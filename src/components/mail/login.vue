@@ -81,24 +81,30 @@ import mail_api from '@/api/mail'
 export default {
   data() {
     return {
+      // 登录按钮显示文字
       loginBtn: '登 录',
+      // 登录按钮的加载状态
       loginLoding: true,
+      // 登录表单默认信息
       form: {
         name: '123@b.com',
         psw: '123',
       },
+      // 当显示器尺寸大于1920时的style
       loginBigBg: {
         background: "url(" + require("@/assets/login_large.png") + ")",
         height: "65%",
         width: "100%",
         margin: "0"
       },
+      // 当显示器尺寸小于1920时的style
       loginBg: {
         background: "url(" + require("@/assets/login.png") + ")",
         height: "65%",
         width: "100%",
         margin: "0"
       },
+      // 登录用户信息的校验规则
       rules: {
         name: [{
             required: true,
@@ -125,6 +131,7 @@ export default {
     this.loginLoding = false
   },
   methods: {
+    // 用户登录
     login(formName) {
       this.loginLoding = true
       this.loginBtn = '登陆中'

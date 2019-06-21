@@ -157,21 +157,22 @@ export default {
         })
         .catch(_ => {});
     },
+    // 写邮件
     newMail() {
       this.dialogVisible = true
     },
     handleSelect(key, keyPath) {
-      // 如果为跳回首页
+      // 0为跳回首页
       if (key == 0) {
         this.$router.push('/')
         this.current_box = null
-        // 如果为收件箱
+        // 1为收件箱
       } else if (key == 1) {
         this.$store.dispatch('updateInMailList', this.$store.getters.getUsername)
         setTimeout(1000)
         this.maillist = this.$store.getters.get_in_mail_list
         this.current_box = 1
-        // 如果为发件箱
+        // 2为发件箱
       } else if (key == 2) {
         this.$store.dispatch('updateOutMailList', this.$store.getters.getUsername)
         setTimeout(1000)
@@ -179,6 +180,7 @@ export default {
         this.current_box = 2
       }
     },
+    // 点击查看具体行信息
     maillist_row_click(row) {
       this.dialogVisible_content = true
       this.dialog_content.content = row.content
@@ -193,8 +195,8 @@ export default {
         })
         .catch(_ => {});
     },
+    // 收取邮件
     getMails() {
-      console.log("this.current_box:"+this.current_box);
       this.getMailBtnLoding = true
       this.getMailBtn = '收取中...'
       if (this.current_box == 1) {
@@ -204,6 +206,7 @@ export default {
         this.$store.dispatch('updateOutMailList', this.$store.getters.getUsername)
         this.maillist = this.$store.getters.get_out_mail_list
       }
+      // TODO: 当前版本默认收取成功，没有对收取结果做判断
       setTimeout(() => {
         Message.success({
           showClose: true,
@@ -213,6 +216,7 @@ export default {
         this.getMailBtn = '收取邮件'
       }, 5000)
     },
+    // 发送邮件
     sendmail(formName) {
       let that = this
       this.$refs[formName].validate(async (valid) => {
@@ -222,6 +226,7 @@ export default {
               showClose: true,
               message: '邮件发送成功！'
             })
+            // 重置发件箱的输入内容
             that.form.content = ''
             that.dialogVisible = false
           }).catch(error => {
@@ -231,7 +236,6 @@ export default {
             })
           })
         } else {
-
           return false;
         }
       });
