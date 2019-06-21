@@ -16,17 +16,18 @@
       </el-menu-item>
     </el-menu>
   </el-aside>
-  <el-container>
+  <el-container v-loading="maillist_loading" element-loading-text="加载中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)">
     <el-header style="text-align: left;">
       <el-button type="primary" size="mini" icon="el-icon-edit" style="margin-top:15px" @click="newMail">写邮件</el-button>
+      <el-button type="primary" size="mini" icon="el-icon-postcard" style="margin-top:15px" @click="getMails" :loading="getMailBtnLoding">{{getMailBtn}}</el-button>
     </el-header>
     <el-main>
       <el-table :data="maillist" @row-click="maillist_row_click">
-        <el-table-column prop="date" label="日期" width="200">
+        <el-table-column prop="id" label="编号" width="120">
         </el-table-column>
-        <el-table-column prop="title" label="标题">
+        <el-table-column prop="sender" label="发件人">
         </el-table-column>
-        <el-table-column prop="addr" label="地址">
+        <el-table-column prop="recipent" label="收件人">
         </el-table-column>
         <el-table-column prop="content" label="内容" :show-overflow-tooltip='true'>
         </el-table-column>
@@ -35,10 +36,13 @@
   </el-container>
   <el-dialog title="新邮件" :visible.sync="dialogVisible" width="60%" style="height:100%" :before-close="handleClose">
     <el-form ref="form" :model="form" label-width="80px">
-      <el-form-item label="标题">
-        <el-input style="width: 50%;" v-model="form.name"></el-input>
+      <el-form-item label="发件人">
+        <el-input style="width: 50%;" v-model="getUsername" :disabled="true"></el-input>
       </el-form-item>
-      <el-form-item label="地址">
+      <el-form-item prop="address" label="收件地址" :rules="[
+      { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+      { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+      ]">
         <el-input style="width: 50%;" v-model="form.address"></el-input>
       </el-form-item>
       <el-form-item label="内容">
@@ -47,18 +51,18 @@
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="dialogVisible = false">取 消</el-button>
-      <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      <el-button type="primary" @click="sendmail('form')">确 定</el-button>
     </span>
   </el-dialog>
-  <el-dialog :title="dialog_content.title" :visible.sync="dialogVisible_content" width="60%" style="height:100%" :before-close="handleClose_content">
+  <el-dialog :title="'来自：'+dialog_content.sender" :visible.sync="dialogVisible_content" width="60%" style="height:100%" :before-close="handleClose_content">
     <el-container>
       <el-row>
         <el-col :span="24">
           <div style="font-size:16px;padding:5px">
-            <strong>时间：</strong>{{this.dialog_content.date}}
+            <strong>邮件编号：</strong>{{this.dialog_content.id}}
           </div>
           <div style="font-size:16px;padding:5px">
-            <strong>地址：</strong>{{this.dialog_content.addr}}
+            <strong>收件人：</strong>{{this.dialog_content.recipent}}
           </div>
         </el-col>
         <el-col :span="24" style="padding:10px">
@@ -75,80 +79,69 @@
 </template>
 
 <script>
+import {
+  mapState,
+  mapActions
+} from 'vuex'
+import {
+  Notification,
+  Message,
+  MessageBox
+} from 'element-ui';
+import mail_api from '@/api/mail'
+
 export default {
+  computed: {
+    get_in_mail_list() {
+      return this.$store.getters.get_in_mail_list
+    },
+    get_out_mail_list() {
+      return this.$store.getters.get_out_mail_list
+    },
+    getUsername() {
+      return this.$store.getters.getUsername
+    }
+  },
   data() {
     return {
       dialogVisible: false,
       dialogVisible_content: false,
       form: {
-        name: '',
         content: '',
-        address: ''
+        address: 'misiyu@b.com'
       },
       maillist: [],
-      inbox: [{
-        date: "2019-6-14 09:58:59",
-        title: "test收件箱",
-        addr: 'sam12138@123.com',
-        content: "test"
-      }, {
-        date: "2019-6-14 09:58:59",
-        title: "tes123t",
-        addr: 'sam12138@123.com',
-        content: "test"
-      }, {
-        date: "2019-6-14 09:58:59",
-        title: "tes阿斯蒂芬t",
-        addr: 'sam12138@123.com',
-        content: "test"
-      }, {
-        date: "2019-6-14 09:58:59",
-        title: "test去微软",
-        addr: 'sam12138@123.com',
-        content: "test"
-      }, {
-        date: "2019-6-14 09:58:59",
-        title: "tes现场v下t",
-        addr: 'sam12138@123.com',
-        content: "test"
-      }],
-      outbox: [{
-        date: "2019-6-14 09:58:59",
-        title: "outboxtest",
-        addr: 'sam12138@123.com',
-        content: "发件箱"
-      }, {
-        date: "2019-6-14 09:58:59",
-        title: "te阿斯蒂芬st",
-        addr: 'sam12138@123.com',
-        content: "t许昌吧est"
-      }, {
-        date: "2019-6-14 09:58:59",
-        title: "tesvbnt",
-        addr: 'sam12138@123.com',
-        content: "te投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入stte投入st"
-      }, {
-        date: "2019-6-14 09:58:59",
-        title: "tes吧v才能t",
-        addr: 'sam12138@123.com',
-        content: "tes看i一块t"
-      }, {
-        date: "2019-6-14 09:58:59",
-        title: "tes的观点t",
-        addr: 'sam12138@123.com',
-        content: "t绕太阳est"
-      }],
+      current_box: null,
       dialog_content: {
-        title: '',
-        date: '',
-        addr: '',
+        sender: '',
+        id: '',
+        recipent: '',
         content: ''
-      }
+      },
+      maillist_loading: false,
+      getMailBtn: '收取邮件',
+      getMailBtnLoding: false
     };
   },
   mounted() {
-    this.maillist = this.inbox
+    this.maillist_loading = true
+    this.getMailBtnLoding = false
     const that = this
+    mail_api.inbox_mail(this.getUsername, '').then(response => {
+      if (response.data != undefined) {
+        that.$store.dispatch('updateInMailList', that.$store.getters.getUsername)
+        that.maillist = that.get_in_mail_list
+        that.maillist_loading = false
+        that.current_box = 1
+      }
+    }).catch(error => {
+      Message.error({
+        title: '失败',
+        message: error
+      })
+      this.loginBtn = '登 录'
+      this.loginLoding = false
+    });
     window.onresize = () => {
       return (() => {
         window.screenHeight = document.body.clientHeight
@@ -171,20 +164,27 @@ export default {
       // 如果为跳回首页
       if (key == 0) {
         this.$router.push('/')
+        this.current_box = null
         // 如果为收件箱
       } else if (key == 1) {
-        this.maillist = this.inbox
+        this.$store.dispatch('updateInMailList', this.$store.getters.getUsername)
+        setTimeout(1000)
+        this.maillist = this.$store.getters.get_in_mail_list
+        this.current_box = 1
         // 如果为发件箱
       } else if (key == 2) {
-        this.maillist = this.outbox
+        this.$store.dispatch('updateOutMailList', this.$store.getters.getUsername)
+        setTimeout(1000)
+        this.maillist = this.$store.getters.get_out_mail_list
+        this.current_box = 2
       }
     },
     maillist_row_click(row) {
       this.dialogVisible_content = true
       this.dialog_content.content = row.content
-      this.dialog_content.title = row.title
-      this.dialog_content.date = row.date
-      this.dialog_content.addr = row.addr
+      this.dialog_content.sender = row.sender
+      this.dialog_content.id = row.id
+      this.dialog_content.recipent = row.recipent
     },
     handleClose_content(done) {
       this.$confirm('确认关闭？')
@@ -192,6 +192,49 @@ export default {
           done();
         })
         .catch(_ => {});
+    },
+    getMails() {
+      console.log("this.current_box:"+this.current_box);
+      this.getMailBtnLoding = true
+      this.getMailBtn = '收取中...'
+      if (this.current_box == 1) {
+        this.$store.dispatch('updateInMailList', this.$store.getters.getUsername)
+        this.maillist = this.$store.getters.get_in_mail_list
+      } else if (this.current_box == 2) {
+        this.$store.dispatch('updateOutMailList', this.$store.getters.getUsername)
+        this.maillist = this.$store.getters.get_out_mail_list
+      }
+      setTimeout(() => {
+        Message.success({
+          showClose: true,
+          message: '收取成功！'
+        })
+        this.getMailBtnLoding = false
+        this.getMailBtn = '收取邮件'
+      }, 5000)
+    },
+    sendmail(formName) {
+      let that = this
+      this.$refs[formName].validate(async (valid) => {
+        if (valid) {
+          await mail_api.sendmail(that.form.address, that.getUsername, that.form.content).then(data => {
+            Message.success({
+              showClose: true,
+              message: '邮件发送成功！'
+            })
+            that.form.content = ''
+            that.dialogVisible = false
+          }).catch(error => {
+            Message.error({
+              showClose: true,
+              message: '邮件发送失败！请联系管理员！'
+            })
+          })
+        } else {
+
+          return false;
+        }
+      });
     },
   }
 }

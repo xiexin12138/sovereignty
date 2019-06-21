@@ -262,16 +262,17 @@ export default {
         input4: this.releaseFrom.secretKeyLocation,
         input5: this.releaseFrom.description,
       })).then(function(response) {
-        that.releaseDialogVisiable_innerVisible = true
-        if (response[0] == 'o') {
-          Message.success({
-            title: '提示',
-            message: response.data
-          })
-        } else {
+        if (response.data[0] == '0') {
+          that.releaseDialogVisiable_innerVisible = true
+          // Message.success({
+          //   title: '提示',
+          //   message: response.data
+          // })
+        }
+        else {
           that.closeDialog('release_inner')
           that.closeDialog('release')
-          Notification.info({
+          Message.info({
             title: '消息',
             message: response.data
           })

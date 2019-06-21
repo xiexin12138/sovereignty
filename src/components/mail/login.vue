@@ -7,9 +7,9 @@
     </div>
     <div style="padding:15px 0 0 20px;font-size:35px;color:#000000">国家主权网</div>
   </el-row>
+  <!-- 当显示器宽度小于1920时，以这个作为登录页面的背景和输入框 -->
   <el-row :gutter="40" type="flex" justify="center" :style="loginBg" class="hidden-xl-only">
     <el-col :span="8" style="border:1px black;height:400px">
-      <!-- <el-image :src="require('@/assets/login.png')"></el-image> -->
     </el-col>
     <el-col :span="8" style="border:1px black;height:400px;margin-top:50px;max-width:500px">
       <el-card class="box-card">
@@ -26,7 +26,7 @@
             <el-input v-model="form.psw" type="password" style="width:80%;border-radius:0px" show-password></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="login('form')" style="width:80%;border-radius:0px">登 录</el-button>
+            <el-button type="primary" @click="login('form')" :loading="loginLoding" style="width:80%;border-radius:0px">{{ loginBtn }}</el-button>
           </el-form-item>
           <el-form-item>
             <el-button style="width:80%;border-radius:0px">注 册</el-button>
@@ -35,9 +35,9 @@
       </el-card>
     </el-col>
   </el-row>
+  <!-- 当显示器宽度大于1920时，以这个作为登录页面的背景和输入框 -->
   <el-row :gutter="40" type="flex" justify="center" :style="loginBigBg" class="hidden-lg-and-down">
     <el-col :span="8" style="border:1px black;height:400px">
-      <!-- <el-image :src="require('@/assets/login.png')"></el-image> -->
     </el-col>
     <el-col :span="8" style="border:1px black;height:400px;margin-top:50px;max-width:500px">
       <el-card class="box-card">
@@ -54,7 +54,7 @@
             <el-input v-model="form.psw" type="password" style="width:80%;border-radius:0px" show-password></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="login('form')" style="width:80%;border-radius:0px">登 录</el-button>
+            <el-button type="primary" @click="login('form')" :loading="loginLoding" style="width:80%;border-radius:0px">{{loginBtn}}</el-button>
           </el-form-item>
           <el-form-item>
             <el-button style="width:80%;border-radius:0px">注 册</el-button>
@@ -70,12 +70,22 @@
 </template>
 
 <script>
+import {
+  Notification,
+  Message,
+  MessageBox
+} from 'element-ui';
+import qs from 'qs';
+import mail_api from '@/api/mail'
+
 export default {
   data() {
     return {
+      loginBtn: '登 录',
+      loginLoding: true,
       form: {
-        name: '',
-        psw: '',
+        name: '123@b.com',
+        psw: '123',
       },
       loginBigBg: {
         background: "url(" + require("@/assets/login_large.png") + ")",
@@ -92,7 +102,7 @@ export default {
       rules: {
         name: [{
             required: true,
-            message: '请输入活动名称',
+            message: '请输入用户名',
             trigger: 'blur'
           },
           {
@@ -110,15 +120,50 @@ export default {
       }
     }
   },
+  mounted() {
+    this.loginBtn = '登 录'
+    this.loginLoding = false
+  },
   methods: {
     login(formName) {
+      this.loginLoding = true
+      this.loginBtn = '登陆中'
+      let that = this
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          console.log("this.form", this.form);
-          this.$router.push('/mail')
+          mail_api.maillogin(that.form.name, that.form.psw).then(response => {
+            if (response.data != undefined) {
+              Message.success({
+                title: '成功',
+                message: '登陆成功！'
+              })
+              that.$store.dispatch('updateUsername', that.form.name)
+              this.$store.dispatch('updateInMailList', this.$store.getters.getUsername)
+              this.$store.dispatch('updateOutMailList', this.$store.getters.getUsername)
+              that.$router.push('/mail')
+            } else {
+              Message.error({
+                title: '失败',
+                message: '登录失败！请检查用户名和密码后重试！'
+              })
+              this.loginBtn = '登 录'
+              this.loginLoding = false
+            }
+          }).catch(error => {
+            Message.error({
+              title: '失败',
+              message: error
+            })
+            this.loginBtn = '登 录'
+            this.loginLoding = false
+          });
         } else {
-          console.log('error submit!!');
-          return false;
+          Message.error({
+            title: '失败',
+            message: '连接失败，请稍后重试！'
+          })
+          this.loginBtn = '登 录'
+          this.loginLoding = false
         }
       });
     },
