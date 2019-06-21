@@ -24,7 +24,7 @@ const actions = {
     if (typeof (mail_list) === 'string') {
       // 每行为一封邮件
       mail_list = mail_list.split('\n')
-      for (let temp of mail_list) {t) {
+      for (let temp of mail_list) {
         // 当收件人用户名和当前登录用户一致时，保存
         if (temp.split(',')[1] == username) {
           tempList.push({
