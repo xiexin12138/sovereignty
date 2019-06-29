@@ -38,7 +38,16 @@
           </el-image>
           <div>
             <div class="bottom clearfix ">
-              <el-button type='info' @click="goToBrowse" style="font-size:20px;width:100%;border-radius:0px;border:1px; border-color:#409EFF" class="button">浏 览</el-button>
+              <el-dropdown style="width:100%" @command="changeDialogVisiable">
+                <el-button type="info" style="font-size:20px;width:100%;border-radius:0px;border:0px">
+                  浏 览 管 理
+                </el-button>
+                <el-dropdown-menu slot="dropdown" style="width:14%">
+                  <el-dropdown-item command="goToBrowse">资源浏览</el-dropdown-item>
+                  <el-dropdown-item command="registerBrowser">浏览用户注册</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+              <!-- <el-button type='info' @click="goToBrowse" style="font-size:20px;width:100%;border-radius:0px;border:1px; border-color:#409EFF" class="button">浏 览</el-button> -->
             </div>
           </div>
         </el-card>
@@ -140,6 +149,38 @@
       </span>
     </el-dialog>
   </el-dialog>
+
+  <!--======================= 资源浏览用户注册Dialog =======================-->
+  <el-dialog title="资源浏览用户注册" status-icon :visible.sync="registerBrowserDialogVisiable" width="30%" :before-close="handleClose_Dialog">
+    <el-row style="text-align:left;color:#000000;">
+      <el-form label-position="top" ref="registerBrowserFrom" :model="registerBrowserFrom" label-width="100px">
+        <el-form-item label="用户名">
+          <el-input v-model="registerBrowserFrom.name" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="所在群">
+          <el-input v-model="registerBrowserFrom.group" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="电话号码">
+          <el-input v-model="registerBrowserFrom.phone" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="真实姓名">
+          <el-input v-model="registerBrowserFrom.realName" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="身份证号">
+          <el-input v-model="registerBrowserFrom.IDCard" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="描述信息">
+          <el-input v-model="registerBrowserFrom.description" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="密钥路径">
+          <el-input v-model="registerBrowserFrom.secretKeyLocation" clearable></el-input>
+        </el-form-item>
+      </el-form>
+    </el-row>
+    <span slot="footer" class="dialog-footer">
+      <el-button type="primary" @click="getCertificate('registerBrowserFrom')" style="width:100%">生成证书</el-button>
+    </span>
+  </el-dialog>
 </el-container>
 </template>
 
@@ -167,9 +208,10 @@ export default {
       }, 1000);
     };
     return {
-      dialogVisible: '', //保存下拉框中要打开的dialog对象的command，传递到方法中去判断要设置哪个dialog的可见性为true
+      dialogVisiable: '', //保存下拉框中要打开的dialog对象的command，传递到方法中去判断要设置哪个dialog的可见性为true
       releaseDialogVisiable: false, //发布资源dialog可见性
       registerDialogVisiable: false, //用户注册dialog可见性
+      registerBrowserDialogVisiable: false, // 浏览用户注册dialog可见性
       releaseDialogVisiable_innerVisible: false,
       registerDialogVisiable_innerVisible: false,
       qrc_addr: process.env.API_HOST + '/mclient/keystore/tdc.png',
@@ -189,6 +231,15 @@ export default {
         prefix: '/wgh',
         secretKeyLocation: '/var/www/html/mclient/keystore/key-wgh'
       },
+      registerBrowserFrom:{
+        name: 'misiyu ',
+        phone: '13670286747',
+        realName: '韦国华',
+        IDCard: '452323199609098989',
+        description: '学生',
+        group: 'pkusz',
+        secretKeyLocation: '/var/www/html/mclient/keystore/key-wgh'
+      },
       rules: {
         prefix_rule: [{
           validator: checkPrefix,
@@ -203,10 +254,6 @@ export default {
     goToMail() {
       this.$router.push('/login')
     },
-    // 跳转到资源浏览页
-    goToBrowse() {
-      window.location.href = process.env.API_HOST + "/mclient/more_n.php"
-    },
     // 根据选择的按钮，显示对应的Dialog
     changeDialogVisiable(command) {
       if (command == 'release') {
@@ -218,6 +265,11 @@ export default {
       } else if (command == 'old') {
         // 跳转到旧版本
         window.location.href = process.env.API_HOST + "/mclient/register.html"
+      } else if (command == 'goToBrowse') {
+        // 跳转到资源浏览页
+        window.location.href = process.env.API_HOST + "/mclient/more_n.php"
+      } else if (command == 'registerBrowser') {
+        this.registerBrowserDialogVisiable = true
       }
     },
     handleClose_Dialog(done) {
@@ -231,18 +283,17 @@ export default {
     closeDialog(dialogName) {
       if (dialogName == 'release') {
         this.releaseDialogVisiable = false
-        this.dialogVisible = ''
       } else if (dialogName == 'register') {
         this.registerDialogVisiable = false
-        this.dialogVisible = ''
       } else if (dialogName == 'release_inner') {
         this.releaseDialogVisiable_innerVisible = false
-        this.dialogVisible = ''
       } else if (dialogName == 'register_inner') {
         this.registerDialogVisiable = false
         this.registerDialogVisiable_innerVisible = false
-        this.dialogVisible = ''
+      } else if (dialogName == 'registerBrowser') {
+        this.registerBrowserDialogVisiable = false
       }
+      this.dialogVisiable = ''
     },
     developing() {
       Message.info({
@@ -300,6 +351,37 @@ export default {
                 message: response.data
               })
             }
+          }).catch(function(error) {
+            Notification.error({
+              title: '错误',
+              message: '请求错误，请联系管理员查看问题'
+            })
+          })
+        } else {
+          return false;
+        }
+      });
+    },
+    // 资源浏览用户注册
+    getCertificate(formName){
+      let that = this
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.$axios.post(process.env.API_HOST + '/mclient/cer/gen_cer.php', qs.stringify({
+            input1: this.registerBrowserFrom.name,
+            input2: this.registerBrowserFrom.phone,
+            input3: this.registerBrowserFrom.group,
+            input4: this.registerBrowserFrom.secretKeyLocation,
+            input5: this.registerBrowserFrom.realName,
+            input6: this.registerBrowserFrom.IDCard,
+            input7: this.registerBrowserFrom.description,
+          })).then(function(response) {
+              Notification.success({
+                title: '提示',
+                message: response.data,
+                duration: 0
+              })
+            that.closeDialog('registerBrowser')
           }).catch(function(error) {
             Notification.error({
               title: '错误',
