@@ -5,7 +5,7 @@
   align-items:center;justify-content:center;font-size:20px;padding-right:20px">
       <el-button icon="el-icon-back" @click="goBack" style="border-radius:0px">返回</el-button>
     </div>
-    <div style="padding:15px 0 0 20px;font-size:35px;color:#000000">国家主权网</div>
+    <div style="padding:15px 0 0 20px;font-size:35px;color:#000000"> MIN</div>
   </el-row>
   <!-- 当显示器宽度小于1920时，以这个作为登录页面的背景和输入框 -->
   <el-row :gutter="40" type="flex" justify="center" :style="loginBg" class="hidden-xl-only">
@@ -87,8 +87,8 @@ export default {
       loginLoding: true,
       // 登录表单默认信息
       form: {
-        name: '123@b.com',
-        psw: '123',
+        name: '',
+        psw: '',
       },
       // 当显示器尺寸大于1920时的style
       loginBigBg: {

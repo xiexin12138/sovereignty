@@ -3,10 +3,10 @@
   <!-- 页头 -->
   <el-header style="height:30%;  display: flex;  align-items: center;">
     <el-row class="hidden-xl-only" style="margin-left:60px;font-size:40px;width:400px;text-align:left;color:#000000; font-family:'Microsoft YaHei';border-bottom:2px solid #000000;">
-      国家主权网
+       MIN
     </el-row>
     <el-row class="hidden-lg-and-down" style="margin-left:60px;font-size:60px;width:500px;text-align:left;color:#000000; font-family:'Microsoft YaHei';border-bottom:2px solid #000000;">
-      国家主权网
+       MIN
     </el-row>
   </el-header>
   <!-- 页面主体 -->
@@ -189,56 +189,56 @@ import {
   Notification,
   Message,
   MessageBox
-} from 'element-ui';
-import qs from 'qs';
+} from 'element-ui'
+import qs from 'qs'
 
 export default {
-  data() {
+  data () {
     let checkPrefix = (rule, value, callback) => {
-      console.log("value:" + value);
+      console.log('value:' + value)
       if (!value) {
-        return callback(new Error('前缀不能为空'));
+        return callback(new Error('前缀不能为空'))
       }
       setTimeout(() => {
         if (value[0] != '/') {
-          callback(new Error('请正确填写前缀名'));
+          callback(new Error('请正确填写前缀名'))
         } else {
-          callback();
+          callback()
         }
-      }, 1000);
-    };
+      }, 1000)
+    }
     return {
-      dialogVisiable: '', //保存下拉框中要打开的dialog对象的command，传递到方法中去判断要设置哪个dialog的可见性为true
-      releaseDialogVisiable: false, //发布资源dialog可见性
-      registerDialogVisiable: false, //用户注册dialog可见性
+      dialogVisiable: '', // 保存下拉框中要打开的dialog对象的command，传递到方法中去判断要设置哪个dialog的可见性为true
+      releaseDialogVisiable: false, // 发布资源dialog可见性
+      registerDialogVisiable: false, // 用户注册dialog可见性
       registerBrowserDialogVisiable: false, // 浏览用户注册dialog可见性
       releaseDialogVisiable_innerVisible: false,
       registerDialogVisiable_innerVisible: false,
       qrc_addr: process.env.API_HOST + '/mclient/keystore/tdc.png',
       releaseFrom: {
-        flag: '/wgh/日剧E01.mp4',
-        mapAddr: '/ndn/edu/scut/hnlg2/dagada-720-01.mp4',
-        hashAndLocation: '1452ec1de8760836d49ef15738c45d1b',
-        description: '日剧',
-        secretKeyLocation: '/var/www/html/mclient/keystore/key-wgh'
+        flag: '',
+        mapAddr: '',
+        hashAndLocation: '',
+        description: '',
+        secretKeyLocation: ''
       },
       registerFrom: {
-        name: '韦同学 ',
-        phone: '13679899090',
-        realName: '韦国华',
-        IDCard: '452323199609098989',
-        description: '个人主页',
-        prefix: '/wgh',
-        secretKeyLocation: '/var/www/html/mclient/keystore/key-wgh'
+        name: ' ',
+        phone: '',
+        realName: '',
+        IDCard: '',
+        description: '',
+        prefix: '',
+        secretKeyLocation: ''
       },
-      registerBrowserFrom:{
-        name: 'misiyu ',
-        phone: '13670286747',
-        realName: '韦国华',
-        IDCard: '452323199609098989',
-        description: '学生',
-        group: 'pkusz',
-        secretKeyLocation: '/var/www/html/mclient/keystore/key-wgh'
+      registerBrowserFrom: {
+        name: ' ',
+        phone: '',
+        realName: '',
+        IDCard: '',
+        description: '',
+        group: '',
+        secretKeyLocation: ''
       },
       rules: {
         prefix_rule: [{
@@ -251,11 +251,11 @@ export default {
   watch: {},
   methods: {
     // 跳转到邮箱登录页
-    goToMail() {
+    goToMail () {
       this.$router.push('/login')
     },
     // 根据选择的按钮，显示对应的Dialog
-    changeDialogVisiable(command) {
+    changeDialogVisiable (command) {
       if (command == 'release') {
         // 显示资源发布Dialog
         this.releaseDialogVisiable = true
@@ -264,23 +264,23 @@ export default {
         this.registerDialogVisiable = true
       } else if (command == 'old') {
         // 跳转到旧版本
-        window.location.href = process.env.API_HOST + "/mclient/register.html"
+        window.location.href = process.env.API_HOST + '/mclient/register.html'
       } else if (command == 'goToBrowse') {
         // 跳转到资源浏览页
-        window.location.href = process.env.API_HOST + "/mclient/more_n.php"
+        window.location.href = process.env.API_HOST + '/mclient/more_n.php'
       } else if (command == 'registerBrowser') {
         this.registerBrowserDialogVisiable = true
       }
     },
-    handleClose_Dialog(done) {
+    handleClose_Dialog (done) {
       this.$confirm('确认关闭？')
         .then(_ => {
-          done();
+          done()
         })
-        .catch(_ => {});
+        .catch(_ => {})
     },
     // 根据返回的Dialog名称关闭对应的Dialog，并做对应回收工作
-    closeDialog(dialogName) {
+    closeDialog (dialogName) {
       if (dialogName == 'release') {
         this.releaseDialogVisiable = false
       } else if (dialogName == 'register') {
@@ -295,22 +295,22 @@ export default {
       }
       this.dialogVisiable = ''
     },
-    developing() {
+    developing () {
       Message.info({
         showClose: true,
         message: '该功能正在开发中，敬请期待'
       })
     },
     // 资源发布
-    releaseResource() {
+    releaseResource () {
       let that = this
       this.$axios.post(process.env.API_HOST + '/mclient/create_url.php', qs.stringify({
         input1: this.releaseFrom.flag,
         input2: this.releaseFrom.mapAddr,
         input3: this.releaseFrom.hashAndLocation,
         input4: this.releaseFrom.secretKeyLocation,
-        input5: this.releaseFrom.description,
-      })).then(function(response) {
+        input5: this.releaseFrom.description
+      })).then(function (response) {
         if (response.data[0] == '0') {
           that.releaseDialogVisiable_innerVisible = true
           // Message.s
@@ -322,8 +322,8 @@ export default {
             message: response.data
           })
         }
-      }).catch(function(error) {
-        console.log("error", error);
+      }).catch(function (error) {
+        console.log('error', error)
         Notification.error({
           title: '错误',
           message: '请求错误，请联系管理员查看问题'
@@ -331,7 +331,7 @@ export default {
       })
     },
     // 资源发布用户注册
-    registerUser(formName) {
+    registerUser (formName) {
       let that = this
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -342,8 +342,8 @@ export default {
             input4: this.registerFrom.secretKeyLocation,
             input5: this.registerFrom.realName,
             input6: this.registerFrom.IDCard,
-            input7: this.registerFrom.description,
-          })).then(function(response) {
+            input7: this.registerFrom.description
+          })).then(function (response) {
             that.registerDialogVisiable_innerVisible = true
             if (response.data[0] == 'o') {
               Message.success({
@@ -351,19 +351,19 @@ export default {
                 message: response.data
               })
             }
-          }).catch(function(error) {
+          }).catch(function (error) {
             Notification.error({
               title: '错误',
               message: '请求错误，请联系管理员查看问题'
             })
           })
         } else {
-          return false;
+          return false
         }
-      });
+      })
     },
     // 资源浏览用户注册
-    getCertificate(formName){
+    getCertificate (formName) {
       let that = this
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -374,24 +374,24 @@ export default {
             input4: this.registerBrowserFrom.secretKeyLocation,
             input5: this.registerBrowserFrom.realName,
             input6: this.registerBrowserFrom.IDCard,
-            input7: this.registerBrowserFrom.description,
-          })).then(function(response) {
-              Notification.success({
-                title: '提示',
-                message: response.data,
-                duration: 0
-              })
+            input7: this.registerBrowserFrom.description
+          })).then(function (response) {
+            Notification.success({
+              title: '提示',
+              message: response.data,
+              duration: 0
+            })
             that.closeDialog('registerBrowser')
-          }).catch(function(error) {
+          }).catch(function (error) {
             Notification.error({
               title: '错误',
               message: '请求错误，请联系管理员查看问题'
             })
           })
         } else {
-          return false;
+          return false
         }
-      });
+      })
     }
   }
 }
