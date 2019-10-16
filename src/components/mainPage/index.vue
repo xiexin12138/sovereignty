@@ -303,8 +303,10 @@ export default {
     },
     // 资源发布
     releaseResource () {
+      console.log("process.env.API_HOST:"+process.env.API_HOST + '/create_url');
       let that = this
-      this.$axios.post(process.env.API_HOST + '/mclient/create_url.php', qs.stringify({
+      this.$axios.post(process.env.API_HOST + '/create_url', qs.stringify({
+      // this.$axios.post(process.env.API_HOST + '/mclient/create_url.php', qs.stringify({
         input1: this.releaseFrom.flag,
         input2: this.releaseFrom.mapAddr,
         input3: this.releaseFrom.hashAndLocation,
